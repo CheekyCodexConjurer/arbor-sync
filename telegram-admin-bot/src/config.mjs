@@ -72,6 +72,9 @@ export function getConfig() {
   const botName = String(process.env.BOT_NAME || "Arbor Sync Admin").trim() || "Arbor Sync Admin";
   const pollingTimeoutSec = parseInteger(process.env.POLLING_TIMEOUT_SEC, 30);
   const retryDelayMs = parseInteger(process.env.RETRY_DELAY_MS, 3000);
+  const telegramWebhookUrl = String(process.env.TELEGRAM_WEBHOOK_URL || "").trim();
+  const telegramWebhookSecret = String(process.env.TELEGRAM_WEBHOOK_SECRET || "").trim();
+  const telegramMode = telegramWebhookUrl ? "webhook" : "polling";
 
   return Object.freeze({
     botRootDir,
@@ -83,6 +86,9 @@ export function getConfig() {
     botName,
     pollingTimeoutSec,
     retryDelayMs,
+    telegramWebhookUrl,
+    telegramWebhookSecret,
+    telegramMode,
     projectRef: extractProjectRef(supabaseUrl)
   });
 }

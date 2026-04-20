@@ -7,7 +7,8 @@ const requiredFiles = [
   "telegram-admin-bot/.env.example",
   "telegram-admin-bot/src/index.mjs",
   "telegram-admin-bot/src/config.mjs",
-  "telegram-admin-bot/src/runtime.mjs",
+  "telegram-admin-bot/src/bot-runtime.mjs",
+  "telegram-admin-bot/src/runtime-state.mjs",
   "telegram-admin-bot/src/telegram/client.mjs",
   "telegram-admin-bot/src/telegram/router.mjs",
   "telegram-admin-bot/src/services/license-service.mjs",
@@ -38,7 +39,9 @@ function main() {
     "ADMIN_TELEGRAM_USER_ID",
     "SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
-    "PAYLOAD_ENCRYPTION_SECRET"
+    "PAYLOAD_ENCRYPTION_SECRET",
+    "TELEGRAM_WEBHOOK_URL",
+    "TELEGRAM_WEBHOOK_SECRET"
   ];
 
   for (const key of requiredKeys) {

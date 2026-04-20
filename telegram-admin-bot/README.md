@@ -20,6 +20,8 @@ Bot administrativo do Arbor Sync para gerenciar licencas, devices, payloads JSON
 - `BOT_NAME`
 - `POLLING_TIMEOUT_SEC`
 - `RETRY_DELAY_MS`
+- `TELEGRAM_WEBHOOK_URL`
+- `TELEGRAM_WEBHOOK_SECRET`
 
 ## Menus entregues
 
@@ -47,17 +49,16 @@ Quando o arquivo chega:
 
 ## Hosting 24h
 
-O caminho gratuito mais viavel neste projeto e:
+O caminho gratuito atual deste projeto e:
 
-- `Render Free` para rodar o bot
-- `UptimeRobot Free` chamando `/health` a cada 5 minutos
+- `Render Free` em modo `webhook`
 
 ### Por que
 
 - `Render Free` aceita Web Service Node sem cartao
-- o bot usa long polling e precisa de um processo vivo
-- `Render` free entra em sleep se nao houver trafego de entrada
-- o endpoint `/health` existe justamente para o monitor manter o servico acordado
+- o Telegram entrega updates por `POST` em `/telegram/webhook`
+- isso evita conflito de `getUpdates`
+- o primeiro wake-up do free pode atrasar a resposta, mas nao exige processo em polling nem ferramenta extra de keepalive
 
 ### Deploy
 
@@ -67,4 +68,5 @@ O caminho gratuito mais viavel neste projeto e:
 4. usar `npm run telegram:bot` como start command
 5. definir `health check path` como `/health`
 6. cadastrar no painel as variaveis do `telegram-admin-bot/.env.example`
-7. criar um monitor no UptimeRobot para pingar o `/health`
+7. definir `TELEGRAM_WEBHOOK_URL=https://SEU-SERVICO.onrender.com/telegram/webhook`
+8. opcionalmente definir `TELEGRAM_WEBHOOK_SECRET` para validar a origem do Telegram

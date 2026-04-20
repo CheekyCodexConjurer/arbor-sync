@@ -35,6 +35,14 @@ export class TelegramClient {
     return this.request("getMe");
   }
 
+  async setWebhook(url, secretToken = "") {
+    return this.request("setWebhook", {
+      url,
+      secret_token: secretToken || undefined,
+      allowed_updates: ["message", "callback_query"]
+    });
+  }
+
   async sendMessage(chatId, text, extra = {}) {
     return this.request("sendMessage", {
       chat_id: chatId,

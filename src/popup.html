@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #F0F4F1;
+      --panel-bg: rgba(255, 255, 255, 0.85);
+      --panel-border: rgba(62, 94, 73, 0.15);
+      --text-main: #2A3B31;
+      --text-muted: #6B8073;
+      --accent: #4A7C59;
+      --accent-hover: #3E6B4C;
+      --accent-glow: rgba(74, 124, 89, 0.3);
+      --gradient-brand: linear-gradient(135deg, #4A7C59 0%, #7AA884 100%);
+      --danger: #B5835A;
+      --danger-bg: rgba(181, 131, 90, 0.08);
+      --glass-blur: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 24px;
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      z-index: -1;
+    }
+
+    body::before {
+      top: -20px; left: -20px;
+      width: 150px; height: 150px;
+      background: rgba(122, 168, 132, 0.4);
+    }
+
+    body::after {
+      bottom: -30px; right: -20px;
+      width: 180px; height: 180px;
+      background: rgba(193, 214, 184, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(42, 59, 49, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    /* Mode Selector */
+    .mode-selector {
+      display: flex;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .mode-btn svg {
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    .mode-btn:hover {
+      color: var(--text-main);
+    }
+
+    .mode-btn:hover svg { opacity: 1; }
+
+    .mode-btn.active {
+      background: #ffffff;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .mode-btn.active svg {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    /* Primary Button */
+    .primary-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: var(--accent);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .primary-btn:hover {
+      box-shadow: 0 8px 20px rgba(74, 124, 89, 0.3);
+      background: var(--accent-hover);
+    }
+
+    .primary-btn svg { transition: none; }
+
+    /* Status Indicator */
+    .status {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.8;
+    }
+
+    .status::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* Notice Block */
+    .notice {
+      background: var(--danger-bg);
+      border-color: rgba(255, 51, 102, 0.2);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(255, 51, 102, 0.2);
+      color: var(--danger);
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .notice h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--text-main);
+    }
+
+    .notice p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin: 0 0 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--text-main);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .conflict-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .conflict-chip {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-main);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .update-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .update-btn:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .secondary-btn {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.92);
+      margin-bottom: 10px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .text-input:focus {
+      border-color: rgba(74, 124, 89, 0.55);
+      box-shadow: 0 0 0 4px rgba(74, 124, 89, 0.12);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .session-meta {
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin-top: 10px;
+      min-height: 32px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Success Checkmark Animation */
+    .checkmark {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: block;
+      stroke-width: 2;
+      stroke: var(--accent);
+      stroke-miterlimit: 10;
+      margin: 10px auto 16px;
+      box-shadow: inset 0px 0px 0px rgba(74, 124, 89, 0);
+      animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+    }
+
+    .checkmark__circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke-miterlimit: 10;
+      stroke: var(--accent);
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes scale {
+      0%, 100% { transform: none; }
+      50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+    @keyframes fill {
+      100% { box-shadow: inset 0px 0px 0px 30px rgba(74, 124, 89, 0.1); }
+    }
+
+    /* Fade Transition */
+    .fade-enter {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(5px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .version-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .update-link {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      background: rgba(74, 124, 89, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .update-link:hover {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .version-text {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="subtitle">Extensão Oficial</div>
+    <h1>Arbor Sync</h1>
+  </div>
+
+  <section id="compatNotice" class="card notice hidden">
+    <div class="eyebrow">Ação Necessária</div>
+    <h2>Chrome Desatualizado</h2>
+    <p id="compatText">Esta extensão exige a versão Stable mais recente do Chrome para funcionar.</p>
+    <div class="meta">
+      <span id="currentVersionChip" class="chip"></span>
+      <span id="requiredVersionChip" class="chip"></span>
+    </div>
+    <button id="updateChromeBtn" class="update-btn">Atualizar Navegador</button>
+  </section>
+
+  <section id="conflictNotice" class="card notice hidden">
+    <div class="eyebrow">Bloqueio Ativo</div>
+    <h2>Extensão conflitante detectada</h2>
+    <p id="conflictText">Uma extensão com "Cookie" ou "Cookies" está instalada e a Arbor Sync foi desativada para evitar conflito.</p>
+    <div id="conflictList" class="conflict-list"></div>
+    <button id="retryGuardBtn" class="secondary-btn">Verificar novamente</button>
+  </section>
+
+  <section id="appShell" class="card controls">
+    <!-- Auth View -->
+    <div id="authView" class="hidden">
+      <div style="text-align: center; margin-bottom: 20px; padding-top: 8px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; opacity: 0.8;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h2 style="font-size: 16px; margin: 0 0 6px; color: var(--text-main);">Ativação Necessária</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.4;">Insira sua chave de licença para desbloquear o acesso.</p>
+      </div>
+      <div class="stack" style="margin-bottom: 8px;">
+        <input id="licenseKey" class="text-input" placeholder="Cole sua licença aqui" autocomplete="off" style="margin-bottom: 0;">
+        <button id="saveLicenseBtn" class="primary-btn">Salvar Licença</button>
+      </div>
+    </div>
+
+    <!-- Success View -->
+    <div id="successView" class="hidden fade-enter" style="text-align: center; padding: 12px 0;">
+      <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+      <h2 style="font-size: 16px; margin: 0 0 6px; color: var(--text-main);">Licença Validada</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Desbloqueando acesso...</p>
+    </div>
+
+    <!-- Main View -->
+    <div id="mainView" class="hidden">
+      <div class="mode-selector">
+        <button id="modeGpt" class="mode-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+          GPT
+        </button>
+        <button id="modePerplexity" class="mode-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Perplexity
+        </button>
+      </div>
+
+      <button id="accessBtn" class="primary-btn">
+        Abrir
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+
+      <div class="session-meta" id="sessionMeta">Licença pendente | device -- | expira --</div>
+
+      <button id="stopBtn" class="secondary-btn" style="margin-top: 4px; font-size: 13px; padding: 10px;">Encerrar Sessão</button>
+    </div>
+    
+    <div class="card-footer">
+      <div id="status" class="status">Carregando...</div>
+      <div class="version-wrapper">
+        <span id="updateExtensionBtn" class="update-link hidden">Atualizar extensão</span>
+        <span id="appVersion" class="version-text" style="font-size: 11px; color: var(--text-muted);"></span>
+      </div>
+    </div>
+  </section>
+
+  <script src="shared/chrome-version-gate.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

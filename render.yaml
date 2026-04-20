@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: arbor-sync-bot
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run telegram:bot
+    healthCheckPath: /health
+    autoDeploy: true

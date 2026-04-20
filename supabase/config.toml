@@ -1,0 +1,34 @@
+project_id = "pro-extension"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[auth]
+enabled = true
+
+[edge_runtime]
+enabled = true
+
+[functions.session-start]
+verify_jwt = false
+
+[functions.session-heartbeat]
+verify_jwt = false
+
+[functions.session-end]
+verify_jwt = false
+
+[functions.payload-fetch]
+verify_jwt = false
+
+[realtime]
+enabled = false

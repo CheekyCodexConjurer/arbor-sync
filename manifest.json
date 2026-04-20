@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Arbor Sync",
+  "version": "1.0.3",
+  "description": "Sincronizando você com o futuro.",
+  "permissions": [
+    "management",
+    "proxy",
+    "cookies",
+    "tabs",
+    "storage",
+    "webRequest",
+    "webRequestAuthProvider"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://*.supabase.co/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://www.perplexity.ai/*",
+        "https://perplexity.ai/*"
+      ],
+      "js": [
+        "src/shared/session-contract.js",
+        "src/shared/runtime-config.js",
+        "src/session-heartbeat.js",
+        "src/redirect-settings-guard.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "background": {
+    "service_worker": "src/service-worker.js"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "Arbor Sync"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}

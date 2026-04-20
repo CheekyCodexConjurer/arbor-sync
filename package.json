@@ -1,0 +1,23 @@
+{
+  "name": "arbor-sync-extension",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Chrome extension for proxy and cookie automation.",
+  "scripts": {
+    "check": "node scripts/verify-extension.mjs",
+    "check:remote-session": "node scripts/verify-extension.mjs",
+    "supabase:functions:deploy": "node scripts/deploy-supabase-functions.mjs",
+    "supabase:seed": "node scripts/seed-remote-session.mjs",
+    "supabase:check": "node scripts/check-remote-session.mjs",
+    "telegram:bot": "node telegram-admin-bot/src/index.mjs",
+    "telegram:check": "node scripts/check-telegram-admin-bot.mjs",
+    "build": "npm run check:remote-session",
+    "start": "npm run check:remote-session"
+  },
+  "devDependencies": {
+    "supabase": "^2.92.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4"
+  }
+}

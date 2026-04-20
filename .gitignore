@@ -1,0 +1,11 @@
+node_modules/
+telegram-admin-bot/.env
+telegram-admin-bot/logs/
+.codex-supabase-runtime.json
+.env
+.DS_Store
+Thumbs.db
+dist/
+build/
+coverage/
+asar_extract_backup/

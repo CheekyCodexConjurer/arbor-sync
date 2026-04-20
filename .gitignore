@@ -9,3 +9,4 @@ dist/
 build/
 coverage/
 asar_extract_backup/
+supabase/.temp/

@@ -31,6 +31,10 @@ export class TelegramClient {
     });
   }
 
+  async getMe() {
+    return this.request("getMe");
+  }
+
   async sendMessage(chatId, text, extra = {}) {
     return this.request("sendMessage", {
       chat_id: chatId,

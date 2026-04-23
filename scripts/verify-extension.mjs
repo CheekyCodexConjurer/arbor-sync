@@ -79,9 +79,11 @@ assertFileExists('scripts/test-chrome-version-gate.mjs');
 assertFileExists('scripts/test-service-worker-runtime-reconcile.mjs');
 assertFileExists('scripts/test-redirect-settings-guard.mjs');
 assertFileExists('scripts/test-license-entitlements.mjs');
+assertFileExists('scripts/test-device-transfer-policy.mjs');
 assertFileExists('scripts/test-proxy-auth-config.mjs');
 assertFileExists('supabase/functions/license-status/index.ts');
 assertFileExists('supabase/migrations/20260423_create_license_entitlements.sql');
+assertFileExists('supabase/migrations/20260423_zz_add_device_transfer_policy.sql');
 
 assertJsParses('src/service-worker.js');
 assertJsParses('src/service-worker-guards.js');
@@ -194,6 +196,14 @@ const licenseEntitlementsCheck = spawnSync(process.execPath, ['--test', path.joi
 
 if (licenseEntitlementsCheck.status !== 0) {
   throw new Error('License entitlement regression check failed.');
+}
+
+const deviceTransferPolicyCheck = spawnSync(process.execPath, ['--test', path.join(root, 'scripts', 'test-device-transfer-policy.mjs')], {
+  stdio: 'inherit'
+});
+
+if (deviceTransferPolicyCheck.status !== 0) {
+  throw new Error('Device transfer policy regression check failed.');
 }
 
 const proxyAuthConfigCheck = spawnSync(process.execPath, ['--test', path.join(root, 'scripts', 'test-proxy-auth-config.mjs')], {

@@ -18,6 +18,34 @@ type StartSessionRequest = {
   clientVersion?: unknown;
 };
 
+type DeviceRow = {
+  id: string;
+  device_id: string;
+  status: string;
+};
+
+async function auditDeviceTransfer(
+  supabase: ReturnType<typeof createSupabaseServiceClient>,
+  input: {
+    licenseId: string;
+    previousDevice?: DeviceRow | null;
+    nextDeviceId: string;
+    monthKey: string;
+    status: "approved" | "blocked";
+    reason: string;
+  }
+) {
+  return await supabase.from("device_transfer_events").insert({
+    license_id: input.licenseId,
+    previous_device_id: input.previousDevice?.id ?? null,
+    previous_device_fingerprint: input.previousDevice?.device_id ?? null,
+    next_device_id: input.nextDeviceId,
+    month_key: input.monthKey,
+    status: input.status,
+    reason: input.reason
+  });
+}
+
 Deno.serve(async (request) => {
   const preflight = options(request);
   if (preflight) {
@@ -52,6 +80,7 @@ Deno.serve(async (request) => {
   const sessionToken = crypto.randomUUID();
   const sessionTokenHash = await buildSessionTokenHash(sessionToken, getRequiredEnv("SESSION_TOKEN_PEPPER"));
   const serverTime = nowIso();
+  const monthKey = serverTime.slice(0, 7);
 
   const { data: license, error: licenseError } = await supabase
     .from("licenses")
@@ -93,7 +122,7 @@ Deno.serve(async (request) => {
 
   const { data: existingDevice, error: deviceLookupError } = await supabase
     .from("devices")
-    .select("id, status")
+    .select("id, device_id, status")
     .eq("license_id", license.id)
     .eq("device_id", deviceId)
     .maybeSingle();
@@ -103,11 +132,8 @@ Deno.serve(async (request) => {
   }
 
   let deviceDbId = existingDevice?.id ?? null;
-  if (existingDevice?.status === "revoked") {
-    return failure(403, "device_revoked", "This device is revoked.");
-  }
 
-  if (!deviceDbId) {
+  if (!deviceDbId || existingDevice?.status === "revoked") {
     const { count: activeDeviceCount, error: deviceCountError } = await supabase
       .from("devices")
       .select("id", { count: "exact", head: true })
@@ -119,25 +145,116 @@ Deno.serve(async (request) => {
     }
 
     if ((activeDeviceCount ?? 0) >= license.max_devices) {
-      return failure(409, "device_limit_reached", "License device limit reached.");
+      const { data: usedTransfer, error: transferLookupError } = await supabase
+        .from("device_transfer_events")
+        .select("id")
+        .eq("license_id", license.id)
+        .eq("month_key", monthKey)
+        .eq("status", "approved")
+        .limit(1)
+        .maybeSingle();
+
+      if (transferLookupError) {
+        return failure(502, "backend_error", "Failed to read device transfer policy.", transferLookupError.message);
+      }
+
+      const { data: previousDevice, error: previousDeviceError } = await supabase
+        .from("devices")
+        .select("id, device_id, status")
+        .eq("license_id", license.id)
+        .eq("status", "active")
+        .order("last_seen_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (previousDeviceError) {
+        return failure(502, "backend_error", "Failed to read active device.", previousDeviceError.message);
+      }
+
+      if (usedTransfer) {
+        await auditDeviceTransfer(supabase, {
+          licenseId: license.id,
+          previousDevice,
+          nextDeviceId: deviceId,
+          monthKey,
+          status: "blocked",
+          reason: "monthly_limit_reached"
+        });
+        return failure(409, "device_transfer_limit_reached", "Device transfer monthly limit reached.");
+      }
+
+      const { error: transferAuditError } = await auditDeviceTransfer(supabase, {
+        licenseId: license.id,
+        previousDevice,
+        nextDeviceId: deviceId,
+        monthKey,
+        status: "approved",
+        reason: "self_service_monthly_transfer"
+      });
+
+      if (transferAuditError) {
+        return failure(409, "device_transfer_limit_reached", "Device transfer monthly limit reached.", transferAuditError.message);
+      }
+
+      if (previousDevice) {
+        const { error: previousDeviceRevokeError } = await supabase
+          .from("devices")
+          .update({
+            status: "revoked",
+            revoked_at: serverTime
+          })
+          .eq("id", previousDevice.id);
+
+        if (previousDeviceRevokeError) {
+          return failure(502, "backend_error", "Failed to revoke previous device.", previousDeviceRevokeError.message);
+        }
+
+        const { error: previousSessionRevokeError } = await supabase
+          .from("sessions")
+          .update({
+            status: "revoked",
+            revoked_at: serverTime
+          })
+          .eq("device_id", previousDevice.id)
+          .eq("status", "active");
+
+        if (previousSessionRevokeError) {
+          return failure(502, "backend_error", "Failed to revoke previous sessions.", previousSessionRevokeError.message);
+        }
+      }
     }
 
-    const { data: createdDevice, error: deviceInsertError } = await supabase
-      .from("devices")
-      .insert({
-        license_id: license.id,
-        device_id: deviceId,
-        status: "active",
-        last_seen_at: serverTime
-      })
-      .select("id")
-      .single();
+    if (deviceDbId) {
+      const { error: deviceReactivateError } = await supabase
+        .from("devices")
+        .update({
+          status: "active",
+          last_seen_at: serverTime,
+          revoked_at: null
+        })
+        .eq("id", deviceDbId);
 
-    if (deviceInsertError) {
-      return failure(502, "backend_error", "Failed to register device.", deviceInsertError.message);
+      if (deviceReactivateError) {
+        return failure(502, "backend_error", "Failed to reactivate device.", deviceReactivateError.message);
+      }
+    } else {
+      const { data: createdDevice, error: deviceInsertError } = await supabase
+        .from("devices")
+        .insert({
+          license_id: license.id,
+          device_id: deviceId,
+          status: "active",
+          last_seen_at: serverTime
+        })
+        .select("id")
+        .single();
+
+      if (deviceInsertError) {
+        return failure(502, "backend_error", "Failed to register device.", deviceInsertError.message);
+      }
+
+      deviceDbId = createdDevice.id;
     }
-
-    deviceDbId = createdDevice.id;
   } else {
     const { error: deviceUpdateError } = await supabase
       .from("devices")
@@ -151,6 +268,10 @@ Deno.serve(async (request) => {
     if (deviceUpdateError) {
       return failure(502, "backend_error", "Failed to update device state.", deviceUpdateError.message);
     }
+  }
+
+  if (!deviceDbId) {
+    return failure(502, "backend_error", "Failed to resolve device.");
   }
 
   const { error: revokeError } = await supabase

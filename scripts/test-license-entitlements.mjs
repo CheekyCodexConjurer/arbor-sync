@@ -20,6 +20,7 @@ const entitlementMigration = readIfExists('supabase/migrations/20260423_create_l
 const sharedSession = read('supabase/functions/_shared/session.ts');
 const sessionStart = read('supabase/functions/session-start/index.ts');
 const licenseStatus = readIfExists('supabase/functions/license-status/index.ts');
+const supabaseConfig = read('supabase/config.toml');
 const deployScript = read('scripts/deploy-supabase-functions.mjs');
 const seedScript = read('scripts/seed-remote-session.mjs');
 const sessionContract = read('src/shared/session-contract.js');
@@ -54,6 +55,7 @@ test('Supabase functions expose and enforce enabled product modes', () => {
   assert.match(licenseStatus, /Deno\.serve/, 'expected a license-status function');
   assert.match(licenseStatus, /\.from\("license_entitlements"\)/, 'expected license-status to read product entitlements');
   assert.match(licenseStatus, /enabledModes/, 'expected license-status responses to expose enabled modes');
+  assert.match(supabaseConfig, /\[functions\.license-status\][\s\S]*verify_jwt = false/, 'expected Supabase config to expose license-status without JWT');
   assert.match(deployScript, /"license-status"/, 'expected deploy script to include license-status');
 });
 

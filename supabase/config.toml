@@ -30,5 +30,8 @@ verify_jwt = false
 [functions.payload-fetch]
 verify_jwt = false
 
+[functions.license-status]
+verify_jwt = false
+
 [realtime]
 enabled = false

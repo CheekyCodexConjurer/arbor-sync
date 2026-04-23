@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-export const SUPPORTED_MODES = ["gpt", "gemini", "claude"] as const;
+export const SUPPORTED_MODES = ["gpt"] as const;
 export const DEFAULT_SESSION_TTL_MS = 10 * 60 * 1000;
 export const DEFAULT_HEARTBEAT_INTERVAL_SEC = 60;
 

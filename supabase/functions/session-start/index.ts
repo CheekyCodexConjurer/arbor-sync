@@ -43,7 +43,7 @@ Deno.serve(async (request) => {
   }
 
   if (!isSupportedMode(mode)) {
-    return failure(409, "invalid_mode", "mode must be gpt, gemini or claude.");
+    return failure(409, "invalid_mode", "mode must be gpt.");
   }
 
   const supabase = createSupabaseServiceClient();

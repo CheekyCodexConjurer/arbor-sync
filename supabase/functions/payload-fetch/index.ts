@@ -26,7 +26,7 @@ Deno.serve(async (request) => {
 
   const mode = new URL(request.url).searchParams.get("mode");
   if (!mode || !isSupportedMode(mode)) {
-    return failure(400, "bad_request", "mode must be gpt, gemini or claude.");
+    return failure(400, "bad_request", "mode must be gpt.");
   }
 
   const supabase = createSupabaseServiceClient();

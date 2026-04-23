@@ -21,7 +21,7 @@ async function main() {
   const runtime = await loadAdminRuntime();
   const manifest = JSON.parse(await fs.readFile(path.join(runtime.rootDir, "manifest.json"), "utf8"));
   const licenseKey = String(process.env.ARBOR_INITIAL_LICENSE_KEY || process.argv[2] || "").trim();
-  const mode = String(process.env.ARBOR_VERIFY_MODE || process.argv[3] || "gemini").trim();
+  const mode = String(process.env.ARBOR_VERIFY_MODE || process.argv[3] || "gpt").trim();
   const deviceId = String(process.env.ARBOR_VERIFY_DEVICE_ID || process.argv[4] || "codex-check-device").trim();
 
   if (!licenseKey) {

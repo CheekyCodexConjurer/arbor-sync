@@ -34,15 +34,13 @@ test('service worker status refreshes Chrome compatibility instead of reusing st
   );
 });
 
-test('shared mode contract and guards include Gemini and Claude', () => {
-  assert.match(sessionContractSource, /gemini:\s*"gemini"/, 'expected session-contract.js to register Gemini as a supported mode');
-  assert.match(sessionContractSource, /claude:\s*"claude"/, 'expected session-contract.js to register Claude as a supported mode');
-  assert.match(sessionContractSource, /value === MODES\.gpt \|\| value === MODES\.gemini \|\| value === MODES\.claude/, 'expected session-contract.js to accept Gemini and Claude as valid modes');
-  assert.match(runtimeConfigSource, /https:\/\/gemini\.google\.com/, 'expected runtime-config.js to control the Gemini origin');
-  assert.match(runtimeConfigSource, /https:\/\/claude\.ai/, 'expected runtime-config.js to control the Claude origin');
-  assert.match(guardSource, /gemini:\s*Object\.freeze\(\{[\s\S]*targetUrl:\s*"https:\/\/gemini\.google\.com\/"/, 'expected service-worker-guards.js to route Gemini to gemini.google.com');
-  assert.match(guardSource, /claude:\s*Object\.freeze\(\{[\s\S]*targetUrl:\s*"https:\/\/claude\.ai\/"/, 'expected service-worker-guards.js to route Claude to claude.ai');
-  assert.match(guardSource, /hostname === "chatgpt\.com"[\s\S]*CONTRACT\.MODES\.gpt[\s\S]*hostname === "gemini\.google\.com"[\s\S]*CONTRACT\.MODES\.gemini[\s\S]*hostname === "claude\.ai"[\s\S]*CONTRACT\.MODES\.claude/, 'expected service-worker-guards.js to detect Gemini and Claude URLs');
-  assert.match(manifestSource, /https:\/\/gemini\.google\.com\/\*/, 'expected manifest.json to inject session heartbeat on Gemini');
-  assert.match(sessionSharedSource, /SUPPORTED_MODES = \["gpt", "gemini", "claude"\]/, 'expected Supabase functions to accept Gemini and Claude modes');
+test('shared mode contract and guards expose only GPT Pro', () => {
+  assert.match(sessionContractSource, /gpt:\s*"gpt"/, 'expected session-contract.js to register GPT as the supported mode');
+  assert.doesNotMatch(sessionContractSource, /gemini:\s*"gemini"|claude:\s*"claude"/, 'expected session-contract.js to omit Gemini and Claude modes');
+  assert.match(sessionContractSource, /return value === MODES\.gpt;/, 'expected session-contract.js to accept only GPT as a valid mode');
+  assert.doesNotMatch(runtimeConfigSource, /https:\/\/gemini\.google\.com|https:\/\/claude\.ai/, 'expected runtime-config.js not to control Gemini or Claude origins');
+  assert.doesNotMatch(guardSource, /gemini:\s*Object\.freeze|claude:\s*Object\.freeze/, 'expected service-worker-guards.js not to route Gemini or Claude');
+  assert.doesNotMatch(guardSource, /gemini\.google\.com|claude\.ai/, 'expected service-worker-guards.js not to detect Gemini or Claude URLs');
+  assert.doesNotMatch(manifestSource, /https:\/\/gemini\.google\.com\/\*|https:\/\/claude\.ai\/\*/, 'expected manifest.json not to inject session heartbeat on Gemini or Claude');
+  assert.match(sessionSharedSource, /SUPPORTED_MODES = \["gpt"\]/, 'expected Supabase functions to accept only GPT mode');
 });

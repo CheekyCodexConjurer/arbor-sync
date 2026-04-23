@@ -1,7 +1,7 @@
 create table if not exists public.license_entitlements (
   id uuid primary key default gen_random_uuid(),
   license_id uuid not null references public.licenses(id) on delete cascade,
-  mode text not null check (mode in ('gpt', 'gemini', 'claude')),
+  mode text not null check (mode in ('gpt')),
   status text not null default 'active' check (status in ('active', 'past_due', 'revoked', 'expired')),
   starts_at timestamptz not null default now(),
   expires_at timestamptz,
@@ -31,7 +31,7 @@ select
   now(),
   licenses.current_period_end
 from public.licenses
-cross join (values ('gpt'), ('gemini'), ('claude')) as product_modes(mode)
+cross join (values ('gpt')) as product_modes(mode)
 where licenses.status = 'active'
 on conflict (license_id, mode) do nothing;
 

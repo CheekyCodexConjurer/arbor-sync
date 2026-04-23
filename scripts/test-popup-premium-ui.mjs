@@ -113,23 +113,19 @@ test('bottom navigation uses icon-only buttons with pt-BR accessibility labels',
   assert.doesNotMatch(popupHtml, /id="tabSettings"[\s\S]*>\s*Configurações\s*</, 'expected settings tab to remove visible text');
 });
 
-test('ai selectors and product cards use SVG-backed brand icons', () => {
-  assert.match(popupHtml, /id="modeGpt"[\s\S]*<svg[\s\S]*id="modeGemini"[\s\S]*<svg[\s\S]*id="modeClaude"[\s\S]*<svg/s, 'expected the home selector to keep SVG icons for all entry modes');
+test('ai selector and product card expose only GPT Pro with an SVG-backed brand icon', () => {
+  assert.match(popupHtml, /id="modeGpt"[\s\S]*<svg/s, 'expected the home selector to keep a GPT SVG icon');
   assert.doesNotMatch(popupHtml, /id="modePerplexity"|>\s*Perplexity\s*</, 'expected the main mode selector to remove Perplexity');
+  assert.doesNotMatch(popupHtml, /id="modeGemini"|>\s*Gemini\s*</, 'expected the main mode selector to remove Gemini');
+  assert.doesNotMatch(popupHtml, /id="modeClaude"|>\s*Claude\s*</, 'expected the main mode selector to remove Claude');
   assert.match(popupCatalogJs, /icon:\s*AI_ICON_SVGS\.openai/, 'expected ChatGPT product to use the OpenAI icon');
-  assert.match(popupCatalogJs, /icon:\s*AI_ICON_SVGS\.gemini/, 'expected Gemini product to use the Gemini icon');
-  assert.match(popupCatalogJs, /icon:\s*AI_ICON_SVGS\.claude/, 'expected Claude product to use the Claude icon');
+  assert.doesNotMatch(popupCatalogJs, /AI_ICON_SVGS\.gemini|AI_ICON_SVGS\.claude/, 'expected product catalog to omit Gemini and Claude icons');
 });
 
-test('home page exposes Gemini and Claude as first-class modes and uses license entitlement copy', () => {
-  assert.match(popupHtml, /id="modeGemini"[^>]*title="Gemini"/, 'expected popup.html to expose a Gemini entry mode');
-  assert.match(popupHtml, /id="modeClaude"[^>]*title="Claude"/, 'expected popup.html to expose a Claude entry mode');
-  assert.match(popupDomJs, /modeGemini:\s*byId\("modeGemini"\)/, 'expected popup-dom.js to bind the Gemini mode button');
-  assert.match(popupDomJs, /modeClaude:\s*byId\("modeClaude"\)/, 'expected popup-dom.js to bind the Claude mode button');
-  assert.match(popupJs, /if \(refs\.modeGemini\.classList\.contains\("active"\)\)\s*\{\s*return "gemini";\s*\}/, 'expected popup.js to resolve Gemini as a selectable mode');
-  assert.match(popupJs, /if \(refs\.modeClaude\.classList\.contains\("active"\)\)\s*\{\s*return "claude";\s*\}/, 'expected popup.js to resolve Claude as a selectable mode');
-  assert.match(popupRenderersJs, /const isGemini = mode === "gemini";/, 'expected popup-renderers.js to track Gemini as an active mode');
-  assert.match(popupRenderersJs, /const isClaude = mode === "claude";/, 'expected popup-renderers.js to track Claude as an active mode');
+test('home page keeps GPT as the only selectable mode and uses license entitlement copy', () => {
+  assert.doesNotMatch(popupDomJs, /modeGemini|modeClaude/, 'expected popup-dom.js not to bind non-GPT mode buttons');
+  assert.doesNotMatch(popupJs, /return "gemini"|return "claude"/, 'expected popup.js not to resolve non-GPT modes');
+  assert.doesNotMatch(popupRenderersJs, /isGemini|isClaude/, 'expected popup-renderers.js not to track non-GPT active modes');
   assert.match(popupRenderersJs, /Sem produtos ativos/, 'expected popup-renderers.js to expose an empty-entitlement state');
   assert.match(popupRenderersJs, /bootstrapConfig\.licenseKeyConfigured \? "Licença ativa" : "Licença inativa"/, 'expected popup-renderers.js to keep active or inactive license copy');
   assert.doesNotMatch(popupRenderersJs, /Licença pendente/, 'expected popup-renderers.js to stop using the pending license label');
@@ -202,8 +198,7 @@ test('products page exposes a compact month switcher above the value', () => {
   assert.doesNotMatch(popupHtml, /Perplexity Pro/, 'expected popup.html to remove Perplexity from the product card');
   assert.doesNotMatch(popupCatalogJs, /Perplexity Pro/, 'expected popup-catalog.js to remove Perplexity from the catalog');
   assert.match(popupCatalogJs, /ChatGPT Pro", priceLabel: "R\$ 99,90", priceValue: 99\.9/, 'expected ChatGPT Pro to use the divided per-user price');
-  assert.match(popupCatalogJs, /Gemini AI Ultra", priceLabel: "R\$ 120,99", priceValue: 120\.99/, 'expected Gemini Ultra to use the divided per-user price');
-  assert.match(popupCatalogJs, /Claude Max 20x", priceLabel: "R\$ 110,00", priceValue: 110/, 'expected Claude Max to use the divided per-user price');
+  assert.doesNotMatch(popupCatalogJs, /Gemini AI Ultra|Claude Max 20x/, 'expected the catalog to offer only GPT Pro for now');
   assert.match(popupRenderersJs, /R\$ \$\{total\.toFixed\(2\)\.replace\("\.", ","\)\}/, 'expected popup-renderers.js to format totals in Brazilian reais');
   assert.match(popupRenderersJs, /button\.className = "product-card";/, 'expected popup-renderers.js to keep products as distinct rounded cards');
   assert.match(popupComponentsCss, /\.checkout-total \{[\s\S]*font-size: 12px;/, 'expected the total value to stay aligned with product price sizes');

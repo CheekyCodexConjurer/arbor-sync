@@ -8,8 +8,6 @@
     saveLicenseBtn: byId("saveLicenseBtn"),
     licenseKeyInput: byId("licenseKey"),
     modeGpt: byId("modeGpt"),
-    modeGemini: byId("modeGemini"),
-    modeClaude: byId("modeClaude"),
     loadingView: byId("loadingView"),
     compatView: byId("compatView"),
     conflictView: byId("conflictView"),

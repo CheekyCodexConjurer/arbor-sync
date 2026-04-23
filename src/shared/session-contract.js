@@ -1,8 +1,6 @@
 (function () {
   const MODES = Object.freeze({
-    gpt: "gpt",
-    gemini: "gemini",
-    claude: "claude"
+    gpt: "gpt"
   });
 
   const SESSION_STATUS = Object.freeze({
@@ -33,7 +31,7 @@
   });
 
   function isMode(value) {
-    return value === MODES.gpt || value === MODES.gemini || value === MODES.claude;
+    return value === MODES.gpt;
   }
 
   function normalizeMode(value, fallback = MODES.gpt) {

@@ -79,14 +79,6 @@ function formatSessionExpiry(session) {
 }
 
 function getSelectedMode() {
-  if (refs.modeClaude.classList.contains("active")) {
-    return "claude";
-  }
-
-  if (refs.modeGemini.classList.contains("active")) {
-    return "gemini";
-  }
-
   return "gpt";
 }
 

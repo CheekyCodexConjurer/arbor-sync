@@ -39,7 +39,7 @@ create table if not exists public.sessions (
   id uuid primary key default gen_random_uuid(),
   license_id uuid not null references public.licenses(id) on delete cascade,
   device_id uuid not null references public.devices(id) on delete cascade,
-  mode text not null check (mode in ('gpt', 'gemini', 'claude')),
+  mode text not null check (mode in ('gpt')),
   session_token_hash text not null unique,
   expires_at timestamptz not null,
   last_heartbeat_at timestamptz not null default now(),
@@ -52,7 +52,7 @@ create table if not exists public.sessions (
 
 create table if not exists public.mode_payloads (
   id uuid primary key default gen_random_uuid(),
-  mode text not null check (mode in ('gpt', 'gemini', 'claude')),
+  mode text not null check (mode in ('gpt')),
   version integer not null check (version > 0),
   encrypted_payload text not null,
   payload_hash text not null,

@@ -128,14 +128,6 @@
       await selectMode("gpt", helpers);
     });
 
-    refs.modeGemini.addEventListener("click", async () => {
-      await selectMode("gemini", helpers);
-    });
-
-    refs.modeClaude.addEventListener("click", async () => {
-      await selectMode("claude", helpers);
-    });
-
     refs.checkoutBtn.addEventListener("click", () => {
       RENDER.setStatus("Finalização visual disponível");
     });

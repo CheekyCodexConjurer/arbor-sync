@@ -18,27 +18,11 @@ const MODES = {
     backupFileName: "gpt.json",
     targetDomain: "chatgpt.com",
     targetUrl: "https://chatgpt.com/"
-  },
-  gemini: {
-    envPathKey: "ARBOR_GEMINI_SOURCE_PATH",
-    cookiesPath: "assets/data/gemini.json",
-    backupFileName: "gemini.json",
-    targetDomain: "gemini.google.com",
-    targetUrl: "https://gemini.google.com/"
-  },
-  claude: {
-    envPathKey: "ARBOR_CLAUDE_SOURCE_PATH",
-    cookiesPath: "assets/data/claude.json",
-    backupFileName: "claude.json",
-    targetDomain: "claude.ai",
-    targetUrl: "https://claude.ai/"
   }
 };
 
 const MODE_PRICES = Object.freeze({
-  gpt: 99.90,
-  gemini: 120.99,
-  claude: 110.00
+  gpt: 99.90
 });
 
 function sanitizeCookie(cookie) {

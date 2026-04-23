@@ -14,9 +14,7 @@
   });
 
   const MODE_BUTTONS = Object.freeze({
-    gpt: () => refs.modeGpt,
-    gemini: () => refs.modeGemini,
-    claude: () => refs.modeClaude
+    gpt: () => refs.modeGpt
   });
 
   function getKnownEnabledModes(response) {
@@ -67,8 +65,6 @@
       refs.saveLicenseBtn,
       refs.licenseKeyInput,
       refs.modeGpt,
-      refs.modeGemini,
-      refs.modeClaude,
       refs.copyLicenseBtn,
       refs.checkoutBtn,
       refs.checkEnvironmentBtn,
@@ -85,16 +81,10 @@
 
   function updateModeUI(mode) {
     const isGpt = mode === "gpt";
-    const isGemini = mode === "gemini";
-    const isClaude = mode === "claude";
 
     refs.modeGpt.classList.toggle("active", isGpt);
-    refs.modeGemini.classList.toggle("active", isGemini);
-    refs.modeClaude.classList.toggle("active", isClaude);
     refs.modeGpt.setAttribute("aria-pressed", String(isGpt));
-    refs.modeGemini.setAttribute("aria-pressed", String(isGemini));
-    refs.modeClaude.setAttribute("aria-pressed", String(isClaude));
-    refs.settingsModeValue.textContent = isGemini ? "Gemini" : isClaude ? "Claude" : "GPT";
+    refs.settingsModeValue.textContent = "GPT";
   }
 
   function renderProductCatalog(response = state.latestStatusResponse) {

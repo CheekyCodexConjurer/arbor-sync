@@ -17,6 +17,7 @@ function readIfExists(relativePath) {
 }
 
 const entitlementMigration = readIfExists('supabase/migrations/20260423_create_license_entitlements.sql');
+const gptOnlyMigration = readIfExists('supabase/migrations/20260423_z_limit_products_to_gpt_pro.sql');
 const sharedSession = read('supabase/functions/_shared/session.ts');
 const sessionStart = read('supabase/functions/session-start/index.ts');
 const licenseStatus = readIfExists('supabase/functions/license-status/index.ts');
@@ -35,12 +36,14 @@ const popupComponentsCss = read('src/popup-components.css');
 test('database schema stores one product entitlement per license and mode', () => {
   assert.match(entitlementMigration, /create table if not exists public\.license_entitlements/, 'expected a dedicated license_entitlements table');
   assert.match(entitlementMigration, /license_id uuid not null references public\.licenses\(id\) on delete cascade/, 'expected entitlements to belong to licenses');
-  assert.match(entitlementMigration, /mode text not null check \(mode in \('gpt', 'gemini', 'claude'\)\)/, 'expected entitlements to be scoped to supported products');
+  assert.match(entitlementMigration, /mode text not null check \(mode in \('gpt'\)\)/, 'expected entitlements to be scoped to GPT Pro only');
   assert.match(entitlementMigration, /status text not null default 'active' check \(status in \('active', 'past_due', 'revoked', 'expired'\)\)/, 'expected entitlement lifecycle states');
   assert.match(entitlementMigration, /unique \(license_id, mode\)/, 'expected one entitlement row per product per license');
   assert.match(entitlementMigration, /license_entitlements_license_status_mode_idx/, 'expected lookup index for license status checks');
   assert.match(entitlementMigration, /alter table public\.license_entitlements enable row level security;/, 'expected RLS to be enabled');
-  assert.match(entitlementMigration, /cross join \(values \('gpt'\), \('gemini'\), \('claude'\)\)/, 'expected existing active licenses to be backfilled safely');
+  assert.match(entitlementMigration, /cross join \(values \('gpt'\)\)/, 'expected existing active licenses to be backfilled with GPT Pro only');
+  assert.match(gptOnlyMigration, /delete from public\.license_entitlements[\s\S]*mode <> 'gpt'/, 'expected a follow-up migration to remove non-GPT entitlements from upgraded databases');
+  assert.match(gptOnlyMigration, /mode in \('gpt'\)/, 'expected the follow-up migration to constrain runtime tables to GPT Pro only');
 });
 
 test('Supabase functions expose and enforce enabled product modes', () => {

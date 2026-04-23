@@ -6,14 +6,6 @@
     gpt: Object.freeze({
       domain: "chatgpt.com",
       targetUrl: "https://chatgpt.com/"
-    }),
-    gemini: Object.freeze({
-      domain: "gemini.google.com",
-      targetUrl: "https://gemini.google.com/"
-    }),
-    claude: Object.freeze({
-      domain: "claude.ai",
-      targetUrl: "https://claude.ai/"
     })
   });
 
@@ -50,11 +42,7 @@
       const { hostname } = new URL(url);
       return hostname === "chatgpt.com"
         ? CONTRACT.MODES.gpt
-        : hostname === "gemini.google.com"
-          ? CONTRACT.MODES.gemini
-          : hostname === "claude.ai"
-            ? CONTRACT.MODES.claude
-            : null;
+        : null;
     } catch {
       return null;
     }

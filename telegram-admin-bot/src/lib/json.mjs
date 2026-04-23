@@ -2,14 +2,6 @@ const MODE_DEFAULTS = Object.freeze({
   gpt: Object.freeze({
     targetUrl: "https://chatgpt.com/",
     fallbackDomain: "chatgpt.com"
-  }),
-  gemini: Object.freeze({
-    targetUrl: "https://gemini.google.com/",
-    fallbackDomain: "gemini.google.com"
-  }),
-  claude: Object.freeze({
-    targetUrl: "https://claude.ai/",
-    fallbackDomain: "claude.ai"
   })
 });
 

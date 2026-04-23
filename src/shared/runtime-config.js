@@ -5,9 +5,7 @@
     heartbeatIntervalMs: 60 * 1000,
     requestTimeoutMs: 15 * 1000,
     controlledOrigins: Object.freeze([
-      "https://chatgpt.com",
-      "https://gemini.google.com",
-      "https://claude.ai"
+      "https://chatgpt.com"
     ]),
     defaultMode: "gpt",
     storageScopes: Object.freeze({

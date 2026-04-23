@@ -84,7 +84,7 @@
 
     refs.modeGpt.classList.toggle("active", isGpt);
     refs.modeGpt.setAttribute("aria-pressed", String(isGpt));
-    refs.settingsModeValue.textContent = "GPT";
+    refs.settingsModeValue.textContent = "GPT Pro";
   }
 
   function renderProductCatalog(response = state.latestStatusResponse) {

@@ -115,6 +115,8 @@ test('bottom navigation uses icon-only buttons with pt-BR accessibility labels',
 
 test('ai selector and product card expose only GPT Pro with an SVG-backed brand icon', () => {
   assert.match(popupHtml, /id="modeGpt"[\s\S]*<svg/s, 'expected the home selector to keep a GPT SVG icon');
+  assert.match(popupHtml, /id="modeGpt"[\s\S]*>\s*GPT Pro\s*<\/button>/, 'expected the home selector to label the product as GPT Pro');
+  assert.match(popupHtml, /id="settingsModeValue">GPT Pro<\/strong>/, 'expected the settings chip to label the product as GPT Pro');
   assert.doesNotMatch(popupHtml, /id="modePerplexity"|>\s*Perplexity\s*</, 'expected the main mode selector to remove Perplexity');
   assert.doesNotMatch(popupHtml, /id="modeGemini"|>\s*Gemini\s*</, 'expected the main mode selector to remove Gemini');
   assert.doesNotMatch(popupHtml, /id="modeClaude"|>\s*Claude\s*</, 'expected the main mode selector to remove Claude');
@@ -126,6 +128,7 @@ test('home page keeps GPT as the only selectable mode and uses license entitleme
   assert.doesNotMatch(popupDomJs, /modeGemini|modeClaude/, 'expected popup-dom.js not to bind non-GPT mode buttons');
   assert.doesNotMatch(popupJs, /return "gemini"|return "claude"/, 'expected popup.js not to resolve non-GPT modes');
   assert.doesNotMatch(popupRenderersJs, /isGemini|isClaude/, 'expected popup-renderers.js not to track non-GPT active modes');
+  assert.match(popupRenderersJs, /settingsModeValue\.textContent = "GPT Pro"/, 'expected runtime mode rendering to keep the GPT Pro label');
   assert.match(popupRenderersJs, /Sem produtos ativos/, 'expected popup-renderers.js to expose an empty-entitlement state');
   assert.match(popupRenderersJs, /bootstrapConfig\.licenseKeyConfigured \? "Licença ativa" : "Licença inativa"/, 'expected popup-renderers.js to keep active or inactive license copy');
   assert.doesNotMatch(popupRenderersJs, /Licença pendente/, 'expected popup-renderers.js to stop using the pending license label');

@@ -1,6 +1,12 @@
 (function () {
   const STORAGE_KEY = "arbor_sync_last_good_url";
   const SETTINGS_HASH = "#settings";
+  const GUARD_FLAG = "__ARBOR_CHATGPT_SETTINGS_GUARD__";
+
+  if (window[GUARD_FLAG]) {
+    return;
+  }
+  window[GUARD_FLAG] = true;
 
   function toUrl(value) {
     try {
@@ -41,7 +47,7 @@
     try {
       sessionStorage.setItem(STORAGE_KEY, url);
     } catch {
-      // Ignore storage failures and rely on the live redirect check.
+      // Storage is best-effort; the live URL fallback still protects the route.
     }
   }
 
@@ -83,24 +89,9 @@
     };
   }
 
-  function bindNavigationGuard() {
-    handleNavigation();
-    patchHistoryMethod("pushState");
-    patchHistoryMethod("replaceState");
-    window.addEventListener("hashchange", handleNavigation, { passive: true });
-    window.addEventListener("popstate", handleNavigation, { passive: true });
-  }
-
-  chrome.runtime.sendMessage({ action: "getStatus" }, (response) => {
-    const lastError = chrome.runtime.lastError;
-    if (lastError) {
-      return;
-    }
-
-    if (response?.session?.status !== "active") {
-      return;
-    }
-
-    bindNavigationGuard();
-  });
+  patchHistoryMethod("pushState");
+  patchHistoryMethod("replaceState");
+  window.addEventListener("hashchange", handleNavigation, { passive: true });
+  window.addEventListener("popstate", handleNavigation, { passive: true });
+  handleNavigation();
 })();

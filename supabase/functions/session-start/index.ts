@@ -3,6 +3,7 @@ import {
   addMilliseconds,
   buildSessionTokenHash,
   createSupabaseServiceClient,
+  describeModeAccess,
   getHeartbeatIntervalSec,
   getRequiredEnv,
   getSessionTtlMs,
@@ -42,7 +43,7 @@ Deno.serve(async (request) => {
   }
 
   if (!isSupportedMode(mode)) {
-    return failure(409, "invalid_mode", "mode must be gpt or perplexity.");
+    return failure(409, "invalid_mode", "mode must be gpt, gemini or claude.");
   }
 
   const supabase = createSupabaseServiceClient();
@@ -72,6 +73,22 @@ Deno.serve(async (request) => {
 
   if (license.current_period_end && Date.now() >= new Date(license.current_period_end).getTime()) {
     return failure(403, "license_expired", "License subscription period has expired.");
+  }
+
+  const { data: entitlements, error: entitlementError } = await supabase
+    .from("license_entitlements")
+    .select("mode, status, expires_at")
+    .eq("license_id", license.id);
+
+  if (entitlementError) {
+    return failure(502, "backend_error", "Failed to read product entitlements.", entitlementError.message);
+  }
+
+  const modeAccess = describeModeAccess(entitlements ?? [], mode);
+  if (!modeAccess.allowed) {
+    return failure(403, modeAccess.code, modeAccess.message, {
+      enabledModes: modeAccess.enabledModes
+    });
   }
 
   const { data: existingDevice, error: deviceLookupError } = await supabase
@@ -190,6 +207,7 @@ Deno.serve(async (request) => {
     heartbeatEverySec,
     payloadVersion: activePayload?.version ?? 0,
     mode,
+    enabledModes: modeAccess.enabledModes,
     deviceId,
     clientVersion,
     serverTime,

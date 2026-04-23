@@ -1,5 +1,18 @@
 (function (global) {
-  const UPDATE_URL = "https://www.google.com/chrome/";
+  const UPDATE_URL = "chrome://settings/help";
+
+  function getMajorVersion(version) {
+    return Number.parseInt(String(version || "").split(".")[0], 10) || 0;
+  }
+
+  function getRequiredVersion(latestStableVersion) {
+    const latestMajor = getMajorVersion(latestStableVersion);
+    if (!latestMajor) {
+      return latestStableVersion;
+    }
+
+    return `${Math.max(1, latestMajor - 1)}.0.0.0`;
+  }
 
   function compareVersions(a, b) {
     const left = String(a || "")
@@ -73,11 +86,12 @@
 
   async function checkCompatibility() {
     const platformKey = getPlatformKey();
-    const [currentVersion, requiredVersion] = await Promise.all([
+    const [currentVersion, latestStableVersion] = await Promise.all([
       getCurrentChromeVersion(),
       getLatestStableVersion(platformKey)
     ]);
 
+    const requiredVersion = getRequiredVersion(latestStableVersion);
     const supported = compareVersions(currentVersion, requiredVersion) >= 0;
     return {
       supported,
@@ -90,6 +104,7 @@
 
   global.ChromeVersionGate = {
     compareVersions,
+    getRequiredVersion,
     getCurrentChromeVersion,
     getLatestStableVersion,
     getPlatformKey,

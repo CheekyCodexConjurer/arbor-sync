@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { loadAdminRuntime, requestJson } from "./supabase-admin-helpers.mjs";
 
 function getBaseUrl(runtime) {
@@ -17,8 +19,9 @@ async function callJson(url, options = {}) {
 
 async function main() {
   const runtime = await loadAdminRuntime();
+  const manifest = JSON.parse(await fs.readFile(path.join(runtime.rootDir, "manifest.json"), "utf8"));
   const licenseKey = String(process.env.ARBOR_INITIAL_LICENSE_KEY || process.argv[2] || "").trim();
-  const mode = String(process.env.ARBOR_VERIFY_MODE || process.argv[3] || "perplexity").trim();
+  const mode = String(process.env.ARBOR_VERIFY_MODE || process.argv[3] || "gemini").trim();
   const deviceId = String(process.env.ARBOR_VERIFY_DEVICE_ID || process.argv[4] || "codex-check-device").trim();
 
   if (!licenseKey) {
@@ -26,13 +29,22 @@ async function main() {
   }
   const baseUrl = getBaseUrl(runtime);
 
+  const licenseStatus = await callJson(`${baseUrl}/license-status`, {
+    method: "POST",
+    body: {
+      licenseKey,
+      deviceId,
+      clientVersion: manifest.version
+    }
+  });
+
   const started = await callJson(`${baseUrl}/session-start`, {
     method: "POST",
     body: {
       licenseKey,
       deviceId,
       mode,
-      clientVersion: "1.0.3"
+      clientVersion: manifest.version
     }
   });
 
@@ -60,10 +72,14 @@ async function main() {
   });
 
   console.log(JSON.stringify({
+    licenseStatus: {
+      enabledModes: licenseStatus.enabledModes
+    },
     started: {
       mode: started.mode,
       sessionId: started.sessionId,
-      payloadVersion: started.payloadVersion
+      payloadVersion: started.payloadVersion,
+      enabledModes: started.enabledModes
     },
     payload: {
       mode: payload.mode,

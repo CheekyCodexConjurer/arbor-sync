@@ -171,17 +171,42 @@ export async function encryptPayloadBundle(payload, secret) {
   });
 }
 
+function parseProxyHop(rawHop) {
+  const rawValue = String(rawHop || "").trim();
+  if (!rawValue) {
+    return null;
+  }
+
+  const url = new URL(rawValue.includes("://") ? rawValue : `http://${rawValue}`);
+  const endpoint = `${url.hostname}:${url.port}`;
+  const username = decodeURIComponent(url.username || "").trim();
+  const password = decodeURIComponent(url.password || "").trim();
+
+  return {
+    endpoint,
+    auth: username && password
+      ? {
+        host: url.hostname,
+        port: Number(url.port),
+        username,
+        password
+      }
+      : null
+  };
+}
+
 export function buildPacProxyConfig(targetDomain, proxyChain) {
   const normalizedTarget = String(targetDomain || "").trim().toLowerCase();
   const hops = proxyChain
-    .map((hop) => String(hop || "").trim())
+    .map(parseProxyHop)
     .filter(Boolean);
 
   if (!normalizedTarget || hops.length === 0) {
     return null;
   }
 
-  const proxyRule = hops.map((hop) => `PROXY ${hop}`).join("; ");
+  const authEntries = hops.map((hop) => hop.auth).filter(Boolean);
+  const proxyRule = hops.map((hop) => `PROXY ${hop.endpoint}`).join("; ");
   const pacScript = [
     "function shouldProxyHost(host) {",
     "  host = host.toLowerCase();",
@@ -200,7 +225,8 @@ export function buildPacProxyConfig(targetDomain, proxyChain) {
     mode: "pac_script",
     pacScript: {
       data: pacScript
-    }
+    },
+    ...(authEntries.length > 0 ? { auth: authEntries } : {})
   };
 }
 

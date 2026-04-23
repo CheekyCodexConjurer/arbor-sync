@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Arbor Sync",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Sincronizando você com o futuro.",
   "permissions": [
     "management",
@@ -19,9 +19,19 @@
   "content_scripts": [
     {
       "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "src/chatgpt-settings-main-guard.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
         "https://chatgpt.com/*",
-        "https://www.perplexity.ai/*",
-        "https://perplexity.ai/*"
+        "https://gemini.google.com/*",
+        "https://claude.ai/*"
       ],
       "js": [
         "src/shared/session-contract.js",

@@ -6,7 +6,8 @@
     proxyState: "arbor_remote_proxy_state",
     proxyBackupState: "arbor_remote_proxy_backup_state",
     cookieState: "arbor_remote_cookie_state",
-    cookieBackupState: "arbor_remote_cookie_backup_state"
+    cookieBackupState: "arbor_remote_cookie_backup_state",
+    runtimeState: "arbor_remote_runtime_state"
   });
 
   function storageArea(name) {
@@ -62,6 +63,7 @@
       licenseKey: String(value?.licenseKey || "").trim(),
       deviceId: String(value?.deviceId || "").trim(),
       mode: CONTRACT.normalizeMode ? CONTRACT.normalizeMode(value?.mode, CONTRACT.MODES?.gpt || "gpt") : String(value?.mode || "gpt"),
+      enabledModes: CONTRACT.normalizeEnabledModes ? CONTRACT.normalizeEnabledModes(value?.enabledModes) : (Array.isArray(value?.enabledModes) ? value.enabledModes : null),
       clientVersion: String(value?.clientVersion || "").trim(),
       updatedAt: Number.isFinite(value?.updatedAt) ? value.updatedAt : Date.now()
     });
@@ -77,6 +79,7 @@
       mode: CONTRACT.normalizeMode ? CONTRACT.normalizeMode(value?.mode, CONTRACT.MODES?.gpt || "gpt") : String(value?.mode || "gpt"),
       sessionId: String(value?.sessionId || "").trim(),
       sessionToken: String(value?.sessionToken || "").trim(),
+      runtimeId: String(value?.runtimeId || "").trim(),
       expiresAtMs: Number.isFinite(value?.expiresAtMs) ? value.expiresAtMs : 0,
       lastHeartbeatAtMs: Number.isFinite(value?.lastHeartbeatAtMs) ? value.lastHeartbeatAtMs : 0,
       heartbeatEveryMs: Number.isFinite(value?.heartbeatEveryMs) ? value.heartbeatEveryMs : 0,
@@ -141,6 +144,28 @@
     await removeRecord("local", STORAGE_KEYS.sessionState);
   }
 
+  function normalizeRuntimeState(value) {
+    return Object.freeze({
+      runtimeId: String(value?.runtimeId || "").trim(),
+      createdAt: Number.isFinite(value?.createdAt) ? value.createdAt : Date.now()
+    });
+  }
+
+  async function getRuntimeState() {
+    const value = await readRecord("session", STORAGE_KEYS.runtimeState);
+    return value ? normalizeRuntimeState(value) : null;
+  }
+
+  async function setRuntimeState(nextState) {
+    const normalized = normalizeRuntimeState(nextState);
+    await writeRecord("session", STORAGE_KEYS.runtimeState, normalized);
+    return normalized;
+  }
+
+  async function clearRuntimeState() {
+    await removeRecord("session", STORAGE_KEYS.runtimeState);
+  }
+
   async function snapshot() {
     const [bootstrapConfig, sessionState] = await Promise.all([
       getBootstrapConfig(),
@@ -163,6 +188,9 @@
     setSessionState,
     updateSessionState,
     clearSessionState,
+    getRuntimeState,
+    setRuntimeState,
+    clearRuntimeState,
     snapshot
   });
 })();

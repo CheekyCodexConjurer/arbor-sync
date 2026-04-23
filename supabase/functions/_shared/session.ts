@@ -1,13 +1,88 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-export const SUPPORTED_MODES = ["gpt", "perplexity"] as const;
+export const SUPPORTED_MODES = ["gpt", "gemini", "claude"] as const;
 export const DEFAULT_SESSION_TTL_MS = 10 * 60 * 1000;
 export const DEFAULT_HEARTBEAT_INTERVAL_SEC = 60;
 
 export type SupportedMode = (typeof SUPPORTED_MODES)[number];
 
+export type LicenseEntitlementRow = {
+  mode?: unknown;
+  status?: unknown;
+  expires_at?: unknown;
+};
+
+export type ModeAccessDecision = {
+  allowed: boolean;
+  code: "ok" | "product_not_in_license" | "product_inactive" | "product_expired";
+  message: string;
+  enabledModes: SupportedMode[];
+};
+
 export function isSupportedMode(value: unknown): value is SupportedMode {
   return typeof value === "string" && SUPPORTED_MODES.includes(value as SupportedMode);
+}
+
+export function getEnabledModes(entitlements: LicenseEntitlementRow[] = [], nowMs = Date.now()): SupportedMode[] {
+  const enabledModes = new Set<SupportedMode>();
+
+  for (const entitlement of entitlements) {
+    const mode = entitlement?.mode;
+    const expiresAt = entitlement?.expires_at ? new Date(String(entitlement.expires_at)).getTime() : 0;
+    if (
+      isSupportedMode(mode) &&
+      entitlement.status === "active" &&
+      (!expiresAt || nowMs < expiresAt)
+    ) {
+      enabledModes.add(mode);
+    }
+  }
+
+  return SUPPORTED_MODES.filter((mode) => enabledModes.has(mode));
+}
+
+export function describeModeAccess(
+  entitlements: LicenseEntitlementRow[] = [],
+  mode: SupportedMode,
+  nowMs = Date.now()
+): ModeAccessDecision {
+  const enabledModes = getEnabledModes(entitlements, nowMs);
+  const entitlement = entitlements.find((row) => row?.mode === mode);
+
+  if (!entitlement) {
+    return {
+      allowed: false,
+      code: "product_not_in_license",
+      message: "Produto nao incluso nesta licenca.",
+      enabledModes
+    };
+  }
+
+  const expiresAt = entitlement.expires_at ? new Date(String(entitlement.expires_at)).getTime() : 0;
+  if (expiresAt && nowMs >= expiresAt) {
+    return {
+      allowed: false,
+      code: "product_expired",
+      message: "Produto expirado nesta licenca.",
+      enabledModes
+    };
+  }
+
+  if (entitlement.status !== "active") {
+    return {
+      allowed: false,
+      code: "product_inactive",
+      message: "Produto indisponivel nesta licenca.",
+      enabledModes
+    };
+  }
+
+  return {
+    allowed: true,
+    code: "ok",
+    message: "Produto habilitado.",
+    enabledModes
+  };
 }
 
 export async function sha256(input: string) {

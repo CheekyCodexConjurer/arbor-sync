@@ -1,7 +1,8 @@
 (function () {
   const MODES = Object.freeze({
     gpt: "gpt",
-    perplexity: "perplexity"
+    gemini: "gemini",
+    claude: "claude"
   });
 
   const SESSION_STATUS = Object.freeze({
@@ -27,15 +28,37 @@
     proxyState: "arbor_remote_proxy_state",
     proxyBackupState: "arbor_remote_proxy_backup_state",
     cookieState: "arbor_remote_cookie_state",
-    cookieBackupState: "arbor_remote_cookie_backup_state"
+    cookieBackupState: "arbor_remote_cookie_backup_state",
+    runtimeState: "arbor_remote_runtime_state"
   });
 
   function isMode(value) {
-    return value === MODES.gpt || value === MODES.perplexity;
+    return value === MODES.gpt || value === MODES.gemini || value === MODES.claude;
   }
 
   function normalizeMode(value, fallback = MODES.gpt) {
     return isMode(value) ? value : fallback;
+  }
+
+  function normalizeEnabledModes(value) {
+    if (!Array.isArray(value)) {
+      return null;
+    }
+
+    const enabledModes = [];
+    value.forEach((mode) => {
+      const normalizedMode = normalizeMode(mode, "");
+      if (normalizedMode && !enabledModes.includes(normalizedMode)) {
+        enabledModes.push(normalizedMode);
+      }
+    });
+
+    return Object.freeze(enabledModes);
+  }
+
+  function isModeEnabled(enabledModes, mode) {
+    const normalizedMode = normalizeMode(mode, "");
+    return !Array.isArray(enabledModes) || enabledModes.includes(normalizedMode);
   }
 
   function isSessionStatus(value) {
@@ -58,6 +81,7 @@
       licenseKey: String(partial.licenseKey || "").trim(),
       deviceId: String(partial.deviceId || "").trim(),
       mode: normalizeMode(partial.mode, MODES.gpt),
+      enabledModes: normalizeEnabledModes(partial.enabledModes),
       clientVersion: String(partial.clientVersion || "").trim(),
       updatedAt: Number.isFinite(partial.updatedAt) ? partial.updatedAt : Date.now()
     };
@@ -77,6 +101,7 @@
       mode: normalizeMode(partial.mode, MODES.gpt),
       sessionId: String(partial.sessionId || "").trim(),
       sessionToken: String(partial.sessionToken || "").trim(),
+      runtimeId: String(partial.runtimeId || "").trim(),
       expiresAtMs: Number.isFinite(expiresAtMs) ? expiresAtMs : 0,
       lastHeartbeatAtMs: Number.isFinite(lastHeartbeatAtMs) ? lastHeartbeatAtMs : 0,
       heartbeatEveryMs: Number.isFinite(partial.heartbeatEveryMs) ? partial.heartbeatEveryMs : 0,
@@ -128,6 +153,8 @@
     STORAGE_KEYS,
     isMode,
     normalizeMode,
+    normalizeEnabledModes,
+    isModeEnabled,
     isSessionStatus,
     normalizeStatus,
     createBootstrapConfig,

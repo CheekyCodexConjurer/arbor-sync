@@ -1,12 +1,50 @@
+# Dependencies
 node_modules/
-telegram-admin-bot/.env
-telegram-admin-bot/logs/
-.codex-supabase-runtime.json
+
+# Environment and local runtime secrets
 .env
+.env.*
+!.env.example
+telegram-admin-bot/.env
+!telegram-admin-bot/.env.example
+.codex-*.json
+
+# Logs and local diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+telegram-admin-bot/logs/
+
+# OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Build and coverage outputs
 dist/
 build/
 coverage/
 asar_extract_backup/
+*.crx
+*.pem
+
+# Supabase local state
 supabase/.temp/
+supabase/.branches/
+supabase/.cache/
+supabase/.output/
+
+# Sensitive local payload/runtime artifacts
+assets/data/*.json
+.arbor-sync/
+.cache/
+tmp/
+temp/
+
+# Local spreadsheet exports and temporary Office files
+*.xlsx
+*.xls
+~$*.xlsx
+~$*.xls

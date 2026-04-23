@@ -28,6 +28,10 @@
     };
   }
 
+  function isContextInvalidatedError(message) {
+    return /context invalidated/i.test(String(message || ""));
+  }
+
   function sendRuntimeMessage(payload) {
     return new Promise((resolve) => {
       if (!globalThis.chrome?.runtime?.sendMessage) {
@@ -35,15 +39,29 @@
         return;
       }
 
-      globalThis.chrome.runtime.sendMessage(payload, () => {
-        const lastError = globalThis.chrome?.runtime?.lastError;
-        if (lastError) {
-          resolve({ sent: false, error: lastError.message });
-          return;
+      try {
+        globalThis.chrome.runtime.sendMessage(payload, () => {
+          const lastError = globalThis.chrome?.runtime?.lastError;
+          if (lastError) {
+            const errorMessage = String(lastError.message || lastError);
+            if (isContextInvalidatedError(errorMessage)) {
+              stopHeartbeat();
+            }
+
+            resolve({ sent: false, error: errorMessage });
+            return;
+          }
+
+          resolve({ sent: true });
+        });
+      } catch (error) {
+        const errorMessage = String(error?.message || error);
+        if (isContextInvalidatedError(errorMessage)) {
+          stopHeartbeat();
         }
 
-        resolve({ sent: true });
-      });
+        resolve({ sent: false, error: errorMessage });
+      }
     });
   }
 

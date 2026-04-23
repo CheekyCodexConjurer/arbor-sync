@@ -107,14 +107,16 @@ export function buildDevicesMenu(licenseId, devices) {
 export function buildPayloadsMenu() {
   return inlineKeyboard([
     [button("📊 Resumo Payloads", "payload:summary"), button("➕ Novo JSON", "payload:new")],
-    [button("📜 Histórico GPT", "payload:list:gpt"), button("📜 Histórico Perplexity", "payload:list:perplexity")],
+    [button("📜 Histórico GPT", "payload:list:gpt"), button("📜 Histórico Gemini", "payload:list:gemini")],
+    [button("📜 Histórico Claude", "payload:list:claude")],
     [button("🔙 Voltar", "nav:home")]
   ]);
 }
 
 export function buildPayloadModeMenu() {
   return inlineKeyboard([
-    [button("🌐 GPT", "payload:new:gpt"), button("🧠 Perplexity", "payload:new:perplexity")],
+    [button("🌐 GPT", "payload:new:gpt"), button("✨ Gemini", "payload:new:gemini")],
+    [button("🧠 Claude", "payload:new:claude")],
     [button("❌ Cancelar", "nav:payloads")]
   ]);
 }

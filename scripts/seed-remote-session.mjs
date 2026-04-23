@@ -19,14 +19,27 @@ const MODES = {
     targetDomain: "chatgpt.com",
     targetUrl: "https://chatgpt.com/"
   },
-  perplexity: {
-    envPathKey: "ARBOR_PERPLEXITY_SOURCE_PATH",
-    cookiesPath: "assets/data/perplexity.json",
-    backupFileName: "perplexity.json",
-    targetDomain: "www.perplexity.ai",
-    targetUrl: "https://www.perplexity.ai/"
+  gemini: {
+    envPathKey: "ARBOR_GEMINI_SOURCE_PATH",
+    cookiesPath: "assets/data/gemini.json",
+    backupFileName: "gemini.json",
+    targetDomain: "gemini.google.com",
+    targetUrl: "https://gemini.google.com/"
+  },
+  claude: {
+    envPathKey: "ARBOR_CLAUDE_SOURCE_PATH",
+    cookiesPath: "assets/data/claude.json",
+    backupFileName: "claude.json",
+    targetDomain: "claude.ai",
+    targetUrl: "https://claude.ai/"
   }
 };
+
+const MODE_PRICES = Object.freeze({
+  gpt: 99.90,
+  gemini: 120.99,
+  claude: 110.00
+});
 
 function sanitizeCookie(cookie) {
   const value = String(cookie?.value || "").trim();
@@ -173,6 +186,34 @@ async function upsertLicense(projectRef, secretApiKey, licenseKey, maxDevices) {
   return payload[0];
 }
 
+async function upsertLicenseEntitlements(projectRef, secretApiKey, license, modes) {
+  const rows = modes.map((mode) => ({
+    license_id: license.id,
+    mode,
+    status: "active",
+    starts_at: new Date().toISOString(),
+    expires_at: license.current_period_end,
+    months: 1,
+    monthly_price: MODE_PRICES[mode] || 0,
+    paid_amount: MODE_PRICES[mode] || 0
+  }));
+
+  const payload = await restRequest(projectRef, secretApiKey, "license_entitlements", {
+    method: "POST",
+    query: "on_conflict=license_id,mode&select=id,mode,status,monthly_price",
+    headers: {
+      Prefer: "resolution=merge-duplicates,return=representation"
+    },
+    body: rows
+  });
+
+  if (!Array.isArray(payload) || payload.length !== rows.length) {
+    throw new Error("License entitlement upsert returned an unexpected number of rows.");
+  }
+
+  return payload;
+}
+
 async function insertModePayload(runtime, secretApiKey, mode, payload) {
   const version = await fetchNextPayloadVersion(runtime.projectRef, secretApiKey, mode);
   const encryptedPayload = await encryptPayloadBundle(payload, runtime.payloadEncryptionKey);
@@ -244,9 +285,16 @@ async function main() {
   }
 
   const license = await upsertLicense(runtime.projectRef, secretApiKey, licenseKey, maxDevices);
+  const entitlements = await upsertLicenseEntitlements(
+    runtime.projectRef,
+    secretApiKey,
+    license,
+    modeResults.map((result) => result.mode)
+  );
   console.log(JSON.stringify({
     licenseKey,
     license,
+    entitlements,
     payloads: modeResults
   }, null, 2));
 }

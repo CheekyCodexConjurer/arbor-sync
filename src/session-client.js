@@ -101,6 +101,10 @@
     return requestJson("POST", "session-start", input, options);
   }
 
+  function getLicenseStatus(input, options = {}) {
+    return requestJson("POST", "license-status", input, options);
+  }
+
   function heartbeat(input, options = {}) {
     return requestJson("POST", "session-heartbeat", input, options);
   }
@@ -150,6 +154,7 @@
     requestJson,
     getJson,
     startSession,
+    getLicenseStatus,
     heartbeat,
     stopSession,
     fetchPayload

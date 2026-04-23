@@ -6,10 +6,10 @@
     requestTimeoutMs: 15 * 1000,
     controlledOrigins: Object.freeze([
       "https://chatgpt.com",
-      "https://www.perplexity.ai",
-      "https://perplexity.ai"
+      "https://gemini.google.com",
+      "https://claude.ai"
     ]),
-    defaultMode: "perplexity",
+    defaultMode: "gpt",
     storageScopes: Object.freeze({
       bootstrap: "local",
       session: "session"

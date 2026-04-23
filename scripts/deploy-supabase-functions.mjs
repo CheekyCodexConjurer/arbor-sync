@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { loadAdminRuntime, requestJson } from "./supabase-admin-helpers.mjs";
 
-const FUNCTION_NAMES = ["session-start", "session-heartbeat", "session-end", "payload-fetch"];
+const FUNCTION_NAMES = ["session-start", "session-heartbeat", "session-end", "payload-fetch", "license-status"];
 const CONTENT_TYPES = new Map([
   [".ts", "application/typescript"],
   [".js", "application/javascript"],

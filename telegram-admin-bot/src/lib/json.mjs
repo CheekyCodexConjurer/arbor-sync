@@ -3,9 +3,13 @@ const MODE_DEFAULTS = Object.freeze({
     targetUrl: "https://chatgpt.com/",
     fallbackDomain: "chatgpt.com"
   }),
-  perplexity: Object.freeze({
-    targetUrl: "https://www.perplexity.ai/",
-    fallbackDomain: "www.perplexity.ai"
+  gemini: Object.freeze({
+    targetUrl: "https://gemini.google.com/",
+    fallbackDomain: "gemini.google.com"
+  }),
+  claude: Object.freeze({
+    targetUrl: "https://claude.ai/",
+    fallbackDomain: "claude.ai"
   })
 });
 

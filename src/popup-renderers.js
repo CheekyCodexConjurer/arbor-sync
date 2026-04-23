@@ -137,7 +137,7 @@
 
     const selectedProducts = CATALOG.getSelectedProducts();
     const cycleMonths = CATALOG.billingCycleMonths;
-    const total = selectedProducts.reduce((sum, product) => sum + product.priceValue, 0) * cycleMonths;
+    const total = CATALOG.calculateCycleTotal(selectedProducts, cycleMonths);
     refs.productTotal.textContent = `R$ ${total.toFixed(2).replace(".", ",")}`;
 
     [

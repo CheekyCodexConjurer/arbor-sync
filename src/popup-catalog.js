@@ -7,6 +7,12 @@
     { id: "gpt", icon: AI_ICON_SVGS.openai, name: "ChatGPT Pro", priceLabel: "R$ 99,90", priceValue: 99.90 }
   ]);
 
+  const BILLING_CYCLE_DISCOUNTS = Object.freeze({
+    1: 0,
+    2: 0.05,
+    3: 0.1
+  });
+
   const productSelection = new Set(["gpt"]);
   let billingCycleMonths = 1;
 
@@ -37,9 +43,18 @@
     billingCycleMonths = nextValue >= 1 && nextValue <= 3 ? nextValue : 1;
   }
 
+  function calculateCycleTotal(products, months) {
+    const cycleMonths = Number(months);
+    const subtotal = (Array.isArray(products) ? products : [])
+      .reduce((sum, product) => sum + product.priceValue, 0) * cycleMonths;
+    const discount = BILLING_CYCLE_DISCOUNTS[cycleMonths] || 0;
+    return subtotal * (1 - discount);
+  }
+
   globalThis.ArborPopupCatalog = Object.freeze({
     AI_ICON_SVGS,
     PRODUCT_CATALOG,
+    BILLING_CYCLE_DISCOUNTS,
     productSelection,
     setProductSelection,
     get billingCycleMonths() {
@@ -47,6 +62,7 @@
     },
     toggleProductSelection,
     getSelectedProducts,
-    setBillingCycleMonths
+    setBillingCycleMonths,
+    calculateCycleTotal
   });
 })();

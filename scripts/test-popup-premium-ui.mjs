@@ -129,6 +129,7 @@ test('home page keeps GPT as the only selectable mode and uses license entitleme
   assert.match(popupRenderersJs, /Sem produtos ativos/, 'expected popup-renderers.js to expose an empty-entitlement state');
   assert.match(popupRenderersJs, /bootstrapConfig\.licenseKeyConfigured \? "Licença ativa" : "Licença inativa"/, 'expected popup-renderers.js to keep active or inactive license copy');
   assert.doesNotMatch(popupRenderersJs, /Licença pendente/, 'expected popup-renderers.js to stop using the pending license label');
+  assert.match(popupComponentsCss, /\.mode-selector\s*\{[^}]*grid-template-columns:\s*1fr;/, 'expected the single GPT selector to occupy the full row');
   assert.match(popupComponentsCss, /\.meta-pill \{[\s\S]*justify-content: flex-start;/, 'expected the home meta pill to left-align its content');
 });
 
@@ -191,6 +192,8 @@ test('products page exposes a compact month switcher above the value', () => {
   assert.match(popupHtml, /id="productCycle1"/, 'expected popup.html to include the 1 month switcher');
   assert.match(popupHtml, /id="productCycle2"/, 'expected popup.html to include the 2 month switcher');
   assert.match(popupHtml, /id="productCycle3"/, 'expected popup.html to include the 3 month switcher');
+  assert.match(popupHtml, /id="productCycle2"[\s\S]*2 meses · 5%/, 'expected the 2 month cycle to advertise a pleasant discount');
+  assert.match(popupHtml, /id="productCycle3"[\s\S]*3 meses · 10%/, 'expected the 3 month cycle to advertise the strongest short-term discount');
   assert.doesNotMatch(popupHtml, /Acumulado no ciclo/, 'expected popup.html to remove the verbose cycle helper copy');
   assert.doesNotMatch(popupHtml, /id="productSummaryText"/, 'expected popup.html to remove the item count from the checkout');
   assert.doesNotMatch(popupHtml, /id="productTotalCaption"/, 'expected popup.html to remove the total caption from the checkout');
@@ -204,7 +207,9 @@ test('products page exposes a compact month switcher above the value', () => {
   assert.match(popupComponentsCss, /\.checkout-total \{[\s\S]*font-size: 12px;/, 'expected the total value to stay aligned with product price sizes');
   assert.match(popupComponentsCss, /\.checkout-btn \{[\s\S]*width: 34px;/, 'expected the checkout CTA to remain an icon button');
   assert.match(popupCatalogJs, /let billingCycleMonths = 1;/, 'expected popup-catalog.js to persist the selected billing cycle');
-  assert.match(popupRenderersJs, /reduce\(\(sum, product\) => sum \+ product\.priceValue, 0\) \* cycleMonths/, 'expected popup-renderers.js to multiply the total by the selected months');
+  assert.match(popupCatalogJs, /BILLING_CYCLE_DISCOUNTS[\s\S]*2:\s*0\.05[\s\S]*3:\s*0\.1/, 'expected 2 and 3 month cycles to carry fixed discounts');
+  assert.match(popupCatalogJs, /function calculateCycleTotal\(products, months\)/, 'expected popup-catalog.js to own discounted cycle total calculation');
+  assert.match(popupRenderersJs, /CATALOG\.calculateCycleTotal\(selectedProducts, cycleMonths\)/, 'expected popup-renderers.js to apply cycle discounts when rendering the total');
 });
 
 test('license page uses a premium overview card instead of the legacy simple card', () => {

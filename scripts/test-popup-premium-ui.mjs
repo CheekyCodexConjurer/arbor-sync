@@ -195,8 +195,9 @@ test('products page exposes a compact month switcher above the value', () => {
   assert.match(popupHtml, /id="productCycle1"/, 'expected popup.html to include the 1 month switcher');
   assert.match(popupHtml, /id="productCycle2"/, 'expected popup.html to include the 2 month switcher');
   assert.match(popupHtml, /id="productCycle3"/, 'expected popup.html to include the 3 month switcher');
-  assert.match(popupHtml, /id="productCycle2"[\s\S]*2 meses · 5%/, 'expected the 2 month cycle to advertise a pleasant discount');
-  assert.match(popupHtml, /id="productCycle3"[\s\S]*3 meses · 10%/, 'expected the 3 month cycle to advertise the strongest short-term discount');
+  assert.match(popupHtml, /id="productCycle2"[^>]*>2 meses<\/button>/, 'expected the 2 month cycle button to avoid discount copy');
+  assert.match(popupHtml, /id="productCycle3"[^>]*>3 meses<\/button>/, 'expected the 3 month cycle button to avoid discount copy');
+  assert.match(popupHtml, /id="productDiscountBadge"[\s\S]*class="checkout-discount hidden"/, 'expected the discount badge to live beside the checkout price');
   assert.doesNotMatch(popupHtml, /Acumulado no ciclo/, 'expected popup.html to remove the verbose cycle helper copy');
   assert.doesNotMatch(popupHtml, /id="productSummaryText"/, 'expected popup.html to remove the item count from the checkout');
   assert.doesNotMatch(popupHtml, /id="productTotalCaption"/, 'expected popup.html to remove the total caption from the checkout');
@@ -208,11 +209,14 @@ test('products page exposes a compact month switcher above the value', () => {
   assert.match(popupRenderersJs, /R\$ \$\{total\.toFixed\(2\)\.replace\("\.", ","\)\}/, 'expected popup-renderers.js to format totals in Brazilian reais');
   assert.match(popupRenderersJs, /button\.className = "product-card";/, 'expected popup-renderers.js to keep products as distinct rounded cards');
   assert.match(popupComponentsCss, /\.checkout-total \{[\s\S]*font-size: 12px;/, 'expected the total value to stay aligned with product price sizes');
+  assert.match(popupComponentsCss, /\.checkout-discount \{[\s\S]*font-size: 9px;[\s\S]*font-style: italic;/, 'expected the discount badge to be smaller and italic');
   assert.match(popupComponentsCss, /\.checkout-btn \{[\s\S]*width: 34px;/, 'expected the checkout CTA to remain an icon button');
   assert.match(popupCatalogJs, /let billingCycleMonths = 1;/, 'expected popup-catalog.js to persist the selected billing cycle');
   assert.match(popupCatalogJs, /BILLING_CYCLE_DISCOUNTS[\s\S]*2:\s*0\.05[\s\S]*3:\s*0\.1/, 'expected 2 and 3 month cycles to carry fixed discounts');
   assert.match(popupCatalogJs, /function calculateCycleTotal\(products, months\)/, 'expected popup-catalog.js to own discounted cycle total calculation');
+  assert.match(popupCatalogJs, /function getCycleDiscountPercent\(months\)/, 'expected popup-catalog.js to expose the active discount percent');
   assert.match(popupRenderersJs, /CATALOG\.calculateCycleTotal\(selectedProducts, cycleMonths\)/, 'expected popup-renderers.js to apply cycle discounts when rendering the total');
+  assert.match(popupRenderersJs, /refs\.productDiscountBadge\.textContent = `\$\{discountPercent\}% OFF`;/, 'expected popup-renderers.js to render discount copy beside the price');
 });
 
 test('license page uses a premium overview card instead of the legacy simple card', () => {

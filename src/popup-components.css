@@ -389,6 +389,22 @@
   white-space: nowrap;
 }
 
+.checkout-price-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.checkout-discount {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
 .checkout-btn {
   display: inline-flex;
   align-items: center;

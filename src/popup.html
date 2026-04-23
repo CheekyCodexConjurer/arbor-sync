@@ -111,12 +111,15 @@
               <div id="productCycleCard" class="product-cycle-card">
                 <div class="product-cycle-switcher" role="tablist" aria-label="Duração do plano">
                   <button id="productCycle1" class="product-cycle-btn active" type="button" aria-pressed="true">1 mês</button>
-                  <button id="productCycle2" class="product-cycle-btn" type="button" aria-pressed="false">2 meses · 5%</button>
-                  <button id="productCycle3" class="product-cycle-btn" type="button" aria-pressed="false">3 meses · 10%</button>
+                  <button id="productCycle2" class="product-cycle-btn" type="button" aria-pressed="false">2 meses</button>
+                  <button id="productCycle3" class="product-cycle-btn" type="button" aria-pressed="false">3 meses</button>
                 </div>
               </div>
               <div class="product-checkout-bar">
-                <strong id="productTotal" class="checkout-total">$0.00</strong>
+                <div class="checkout-price-group">
+                  <strong id="productTotal" class="checkout-total">$0.00</strong>
+                  <em id="productDiscountBadge" class="checkout-discount hidden"></em>
+                </div>
                 <button id="checkoutBtn" class="checkout-btn" type="button" aria-label="Finalizar compra" title="Finalizar compra">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M5 12h13"/>

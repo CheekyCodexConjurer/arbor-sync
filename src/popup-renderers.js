@@ -138,7 +138,10 @@
     const selectedProducts = CATALOG.getSelectedProducts();
     const cycleMonths = CATALOG.billingCycleMonths;
     const total = CATALOG.calculateCycleTotal(selectedProducts, cycleMonths);
+    const discountPercent = CATALOG.getCycleDiscountPercent(cycleMonths);
     refs.productTotal.textContent = `R$ ${total.toFixed(2).replace(".", ",")}`;
+    refs.productDiscountBadge.textContent = `${discountPercent}% OFF`;
+    refs.productDiscountBadge.classList.toggle("hidden", discountPercent <= 0);
 
     [
       [refs.productCycle1, 1],

@@ -51,6 +51,10 @@
     return subtotal * (1 - discount);
   }
 
+  function getCycleDiscountPercent(months) {
+    return Math.round((BILLING_CYCLE_DISCOUNTS[Number(months)] || 0) * 100);
+  }
+
   globalThis.ArborPopupCatalog = Object.freeze({
     AI_ICON_SVGS,
     PRODUCT_CATALOG,
@@ -63,6 +67,7 @@
     toggleProductSelection,
     getSelectedProducts,
     setBillingCycleMonths,
-    calculateCycleTotal
+    calculateCycleTotal,
+    getCycleDiscountPercent
   });
 })();

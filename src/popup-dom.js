@@ -27,6 +27,7 @@
     expiryMeta: byId("expiryMeta"),
     productList: byId("productList"),
     productTotal: byId("productTotal"),
+    productDiscountBadge: byId("productDiscountBadge"),
     productCycle1: byId("productCycle1"),
     productCycle2: byId("productCycle2"),
     productCycle3: byId("productCycle3"),

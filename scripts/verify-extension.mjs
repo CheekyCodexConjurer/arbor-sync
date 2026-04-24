@@ -80,10 +80,15 @@ assertFileExists('scripts/test-service-worker-runtime-reconcile.mjs');
 assertFileExists('scripts/test-redirect-settings-guard.mjs');
 assertFileExists('scripts/test-license-entitlements.mjs');
 assertFileExists('scripts/test-device-transfer-policy.mjs');
+assertFileExists('scripts/test-stripe-billing.mjs');
 assertFileExists('scripts/test-proxy-auth-config.mjs');
 assertFileExists('supabase/functions/license-status/index.ts');
+assertFileExists('supabase/functions/stripe-checkout/index.ts');
+assertFileExists('supabase/functions/stripe-webhook/index.ts');
+assertFileExists('supabase/functions/stripe-success/index.ts');
 assertFileExists('supabase/migrations/20260423_create_license_entitlements.sql');
 assertFileExists('supabase/migrations/20260423_zz_add_device_transfer_policy.sql');
+assertFileExists('supabase/migrations/20260423_zzz_create_stripe_billing.sql');
 
 assertJsParses('src/service-worker.js');
 assertJsParses('src/service-worker-guards.js');
@@ -204,6 +209,14 @@ const deviceTransferPolicyCheck = spawnSync(process.execPath, ['--test', path.jo
 
 if (deviceTransferPolicyCheck.status !== 0) {
   throw new Error('Device transfer policy regression check failed.');
+}
+
+const stripeBillingCheck = spawnSync(process.execPath, ['--test', path.join(root, 'scripts', 'test-stripe-billing.mjs')], {
+  stdio: 'inherit'
+});
+
+if (stripeBillingCheck.status !== 0) {
+  throw new Error('Stripe billing regression check failed.');
 }
 
 const proxyAuthConfigCheck = spawnSync(process.execPath, ['--test', path.join(root, 'scripts', 'test-proxy-auth-config.mjs')], {

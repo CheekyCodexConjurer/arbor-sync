@@ -128,8 +128,36 @@
       await selectMode("gpt", helpers);
     });
 
-    refs.checkoutBtn.addEventListener("click", () => {
-      RENDER.setStatus("Finalização visual disponível");
+    refs.buyLicenseBtn.addEventListener("click", () => {
+      RENDER.renderProductCatalog();
+      VIEW.setActiveView("main");
+      VIEW.setActiveTab("products", true);
+      RENDER.setStatus("Escolha seu plano");
+    });
+
+    refs.checkoutBtn.addEventListener("click", async () => {
+      const selectedProducts = CATALOG.getSelectedProducts();
+      if (selectedProducts.length === 0) {
+        RENDER.setStatus("Selecione o GPT Pro", "warning");
+        return;
+      }
+
+      RENDER.setButtonLoading(refs.checkoutBtn, null, true, "Abrindo pagamento...", "Finalizar compra");
+      RENDER.setStatus("Abrindo pagamento seguro...");
+      const { response } = await sendMessage({
+        action: "createStripeCheckout",
+        months: CATALOG.billingCycleMonths,
+        productIds: selectedProducts.map((product) => product.id)
+      });
+      RENDER.setButtonLoading(refs.checkoutBtn, null, false, "Abrindo pagamento...", "Finalizar compra");
+
+      if (!response?.success || !response.checkoutUrl) {
+        RENDER.setStatus(response?.error || "Não foi possível abrir o pagamento", "warning");
+        return;
+      }
+
+      chrome.tabs.create({ url: response.checkoutUrl });
+      RENDER.setStatus("Pagamento aberto no Stripe");
     });
 
     refs.copyLicenseBtn.addEventListener("click", async () => {

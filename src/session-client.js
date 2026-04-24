@@ -105,6 +105,10 @@
     return requestJson("POST", "license-status", input, options);
   }
 
+  function createStripeCheckout(input, options = {}) {
+    return requestJson("POST", "stripe-checkout", input, options);
+  }
+
   function heartbeat(input, options = {}) {
     return requestJson("POST", "session-heartbeat", input, options);
   }
@@ -155,6 +159,7 @@
     getJson,
     startSession,
     getLicenseStatus,
+    createStripeCheckout,
     heartbeat,
     stopSession,
     fetchPayload

@@ -12,6 +12,18 @@ export function json(body: unknown, status = 200, headers: HeadersInit = {}) {
   });
 }
 
+export function html(body: string, status = 200, headers: HeadersInit = {}) {
+  return new Response(body, {
+    status,
+    headers: {
+      ...corsHeaders,
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+      ...Object.fromEntries(new Headers(headers).entries())
+    }
+  });
+}
+
 export function failure(status: number, code: string, message: string, details?: unknown) {
   const errorBody: {
     error: {

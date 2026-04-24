@@ -63,6 +63,7 @@
       refs.accessBtn,
       refs.stopBtn,
       refs.saveLicenseBtn,
+      refs.buyLicenseBtn,
       refs.licenseKeyInput,
       refs.modeGpt,
       refs.copyLicenseBtn,

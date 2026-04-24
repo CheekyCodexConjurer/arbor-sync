@@ -33,5 +33,14 @@ verify_jwt = false
 [functions.license-status]
 verify_jwt = false
 
+[functions.stripe-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-success]
+verify_jwt = false
+
 [realtime]
 enabled = false

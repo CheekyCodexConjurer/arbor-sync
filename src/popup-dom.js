@@ -6,6 +6,7 @@
     accessBtnLabel: byId("accessBtnLabel"),
     stopBtn: byId("stopBtn"),
     saveLicenseBtn: byId("saveLicenseBtn"),
+    buyLicenseBtn: byId("buyLicenseBtn"),
     licenseKeyInput: byId("licenseKey"),
     modeGpt: byId("modeGpt"),
     loadingView: byId("loadingView"),

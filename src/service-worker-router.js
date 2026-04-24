@@ -65,6 +65,32 @@
       }));
   }
 
+  async function createStripeCheckout(message) {
+    const bootstrapConfig = await STATUS.ensureBootstrapConfig();
+    const productIds = Array.isArray(message.productIds) ? message.productIds.map(String) : [];
+    if (!productIds.includes("gpt")) {
+      throw new Error("Selecione o GPT Pro para continuar.");
+    }
+
+    const clientVersion = chrome.runtime.getManifest().version;
+    const checkout = await CLIENT.createStripeCheckout({
+      mode: "gpt",
+      months: Number(message.months || 1),
+      licenseKey: bootstrapConfig.licenseKey,
+      deviceId: bootstrapConfig.deviceId,
+      clientVersion
+    });
+
+    return {
+      success: true,
+      checkoutUrl: checkout.checkoutUrl,
+      checkoutId: checkout.checkoutId,
+      months: checkout.months,
+      amountCents: checkout.amountCents,
+      currency: checkout.currency
+    };
+  }
+
   function handleMessage(message, sender, sendResponse) {
     if (message.action === CONTRACT.MESSAGE_TYPES.saveBootstrapConfig || message.action === "saveBootstrapConfig") {
       void saveBootstrapConfig(message)
@@ -83,6 +109,13 @@
 
     if (message.action === "setMode") {
       void setMode(message)
+        .then(sendResponse)
+        .catch((error) => sendResponse({ success: false, error: String(error?.message || error) }));
+      return true;
+    }
+
+    if (message.action === "createStripeCheckout") {
+      void createStripeCheckout(message)
         .then(sendResponse)
         .catch((error) => sendResponse({ success: false, error: String(error?.message || error) }));
       return true;
